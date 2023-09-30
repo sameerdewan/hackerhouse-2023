@@ -1,69 +1,12 @@
 import Image from 'next/image'
+import Navbar from './component/Navbar';
 
 export default function Home() {
   return (
-    <main className="w-3/4 flex flex-col items-center gap-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute">
-      <div className="flex items-center gap-[50px]">
-        <Image
-          src="/fleekLogo.svg"
-          alt="Fleek Logo"
-          width={200}
-          height={87}
-          priority
-        />
-        <Image
-          src="/plus.svg"
-          alt="add"
-          width={20}
-          height={20}
-        />
-        <Image
-          src="/next.svg"
-          className="dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          alt="Next Logo"
-          width={200}
-          height={87}
-          priority
-        />
-      </div>
-
-      <p className="text-2xl">
-        This is a template for creating a Next.js site and deploying it on Fleek.
-      </p>
-
-      <ul
-        className='grid grid-cols-2 gap-[15px]'
-        role='list'
-      >
-        <Card
-          icon='/fleekMark.svg'
-          width={19}
-          href="https://docs.fleek.xyz/"
-          title="Fleek Documentation"
-          body="Learn about Fleek & the available services by cheking our official docs."
-        />
-        <Card
-          icon='/nextMark.svg'
-          width={31}
-          href="https://nextjs.org/docs"
-          title="Next.js Documentation"
-          body="Learn about how Next.js works and explore the official API docs."
-        />
-        <Card
-          icon='/fleekMark.svg'
-          width={19}
-          href="https://blog.fleek.xyz/"
-          title="Fleek Blog"
-          body="Checkout our Blog for more information about Fleek."
-        />
-        <Card
-          icon='/nextMark.svg'
-          width={31}
-          href="https://astro.build/integrations/"
-          title="Next.js Blog"
-          body="Check the latest news about Next.js."
-        />
-      </ul>
+    <main className="w-full flex flex-col items-center gap-10">
+     <div className="flex justify-center w-full">
+      <Navbar />
+     </div>
     </main>
   )
 }
