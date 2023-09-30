@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract CarbonLink is ERC721, Ownable {
-    uint256 public availableCarbonCredits = 0;
+    uint256 public issuedCredits = 0;
 
     struct Credit {
         string issuer;
@@ -20,6 +20,7 @@ contract CarbonLink is ERC721, Ownable {
         bool retired;
         string description;
         bool exists;
+        bool sold;
     }
 
     mapping(uint256 => Credit) private credits;
@@ -44,7 +45,7 @@ contract CarbonLink is ERC721, Ownable {
         bool retired,
         string calldata description
     ) public onlyOwner {
-        uint256 tokenId = availableCarbonCredits + 1;
+        uint256 tokenId = issuedCredits + 1;
         _mint(msg.sender, tokenId);
         credits[tokenId] = Credit({
            issuer: issuer,
@@ -58,7 +59,8 @@ contract CarbonLink is ERC721, Ownable {
            price: price,
            retired: retired,
            description: description,
-           exists: true
+           exists: true,
+           sold: false
         });
     }
 
@@ -70,9 +72,9 @@ contract CarbonLink is ERC721, Ownable {
 
     function buyCarbonLink(uint256 tokenId) public payable tokenExists(tokenId) {
         require(msg.value >= credits[tokenId].price, "Insufficient funds");
-        require(availableCarbonCredits > 0, "No carbon credits in stock");
+        require(credits[tokenId].sold == false, "Contract is not in possession of token");
+        credits[tokenId].sold = true;
         _transfer(address(this), msg.sender, 1);
-        availableCarbonCredits--;
     }
 
     function getCarbonLink(
