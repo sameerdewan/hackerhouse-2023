@@ -3,10 +3,10 @@ pragma solidity ^0.8.9;
 
 // Need to figure out how to trigger and bring on chain data from external source for riskRating (mock api)
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/FunctionsClient.sol";
-import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/libraries/FunctionsRequest.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import {FunctionsClient} from "../node_modules/@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/FunctionsClient.sol";
+import {FunctionsRequest} from "../node_modules/@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/libraries/FunctionsRequest.sol";
 
 contract CarbonLink is ERC721, Ownable, FunctionsClient {
     using FunctionsRequest for FunctionsRequest.Request;
@@ -15,6 +15,7 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
     uint32 gasLimit;
     bytes32 jobId;
     uint256 public issuedCredits = 0;
+    mapping(bytes32 => uint256) public requestIdToTokenId;
 
     struct Credit {
         string uuid;
@@ -32,6 +33,7 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
         bool exists;
         uint256 riskRating;
         uint256 lastEvaluatedRiskDate;
+        bytes32 latestRequestId;
     }
 
     mapping(uint256 => Credit) private credits;
@@ -64,7 +66,8 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
         bool retired,
         string calldata description,
         uint256 riskRating,
-        uint256 lastEvaluatedRiskDate
+        uint256 lastEvaluatedRiskDate,
+        bytes32 latestRequestId
     ) public onlyOwner {
         uint256 tokenId = issuedCredits + 1;
         _mint(msg.sender, tokenId);
@@ -83,7 +86,8 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
             description: description,
             exists: true,
             riskRating: riskRating,
-            lastEvaluatedRiskDate: lastEvaluatedRiskDate
+            lastEvaluatedRiskDate: lastEvaluatedRiskDate,
+            latestRequestId: latestRequestId
         });
     }
 
@@ -106,29 +110,26 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
         return credits[tokenId];
     }
 
-    function requestRiskData(string calldata source, bytes calldata secrets, uint256 tokenId) public returns (bytes32) {
+  function requestRiskData(string calldata source, bytes calldata secrets, uint256 tokenId) public returns (bytes32) {
     FunctionsRequest.Request memory req;
     req.initializeRequest(FunctionsRequest.Location.Inline, FunctionsRequest.CodeLanguage.JavaScript, source);
     if (secrets.length > 0) req.addSecretsReference(secrets);
-    // if (riskLedger[tokenId].exists == false) {
-    //     riskLedger[tokenId] = Risk({
-    //       rating: 0,
-    //       lastEvaluatedDate: 0,
-    //       latestRequestId: 0,
-    //       exists: true
-    //     });
-    // }
-    // riskLedger[tokenId].latestRequestId = _sendRequest(
-    //     req.encodeCBOR(), 
-    //     subscriptionId, 
-    //     gasLimit,
-    //     jobId
-    // );
-    // return riskLedger[tokenId].latestRequestId;
+    
+    bytes32 requestId = _sendRequest(
+        req.encodeCBOR(), 
+        subscriptionId, 
+        gasLimit,
+        jobId
+    );
+        requestIdToTokenId[requestId] = tokenId;
+    return requestId;
   }
 
   function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
-
+    uint256 riskRating = abi.decode(response, (uint256));
+    uint256 tokenId = requestIdToTokenId[requestId];
+    credits[tokenId].riskRating = riskRating;
+    credits[tokenId].lastEvaluatedRiskDate = block.timestamp;
     emit OCRResponse(requestId, response, err);
   }  
 
