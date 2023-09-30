@@ -1,10 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
+// Need to figure out how to trigger and bring on chain data from external source for riskRating (mock api)
+
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/FunctionsClient.sol";
+import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/libraries/FunctionsRequest.sol";
 
-contract CarbonLink is ERC721, Ownable {
+contract CarbonLink is ERC721, Ownable, FunctionsClient {
+    using FunctionsRequest for FunctionsRequest.Request;
+
+    uint64 subscriptionId;
+    uint32 gasLimit;
+    bytes32 jobId;
     uint256 public issuedCredits = 0;
 
     struct Credit {
@@ -27,12 +36,19 @@ contract CarbonLink is ERC721, Ownable {
 
     mapping(uint256 => Credit) private credits;
 
+    event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
+
+    error UnknownRequestId(bytes32 requestId, bytes response, bytes err);
+
     modifier tokenExists(uint256 tokenId) {
         require(_exists(tokenId), "Token does not exist");
         _;
     }
 
-    constructor() ERC721("CarbonLink", "CLINK") {}
+    constructor(address oracle, uint64 _subscriptionId, uint32 _gasLimit) FunctionsClient(oracle)  ERC721("CarbonLink", "CLINK") {
+        subscriptionId = _subscriptionId;
+        gasLimit = _gasLimit;
+    }
 
     function mintCarbonLink(
         string calldata uuid,
@@ -89,4 +105,38 @@ contract CarbonLink is ERC721, Ownable {
     ) public view tokenExists(tokenId) returns (Credit memory) {
         return credits[tokenId];
     }
+
+    function requestRiskData(string calldata source, bytes calldata secrets, uint256 tokenId) public returns (bytes32) {
+    FunctionsRequest.Request memory req;
+    req.initializeRequest(FunctionsRequest.Location.Inline, FunctionsRequest.CodeLanguage.JavaScript, source);
+    if (secrets.length > 0) req.addSecretsReference(secrets);
+    // if (riskLedger[tokenId].exists == false) {
+    //     riskLedger[tokenId] = Risk({
+    //       rating: 0,
+    //       lastEvaluatedDate: 0,
+    //       latestRequestId: 0,
+    //       exists: true
+    //     });
+    // }
+    // riskLedger[tokenId].latestRequestId = _sendRequest(
+    //     req.encodeCBOR(), 
+    //     subscriptionId, 
+    //     gasLimit,
+    //     jobId
+    // );
+    // return riskLedger[tokenId].latestRequestId;
+  }
+
+  function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
+
+    emit OCRResponse(requestId, response, err);
+  }  
+
+  function setSubscriptionId(uint64 _subscriptionId) public onlyOwner {
+    subscriptionId = _subscriptionId;
+  }
+
+  function setGasLimit(uint32 _gasLimit) public onlyOwner {
+    gasLimit = _gasLimit;
+  }
 }
