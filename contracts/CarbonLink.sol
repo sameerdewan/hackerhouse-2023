@@ -8,6 +8,7 @@ contract CarbonLink is ERC721, Ownable {
     uint256 public issuedCredits = 0;
 
     struct Credit {
+        string uuid;
         string issuer;
         uint256 metricTonsCO2;
         uint256 issueDate;
@@ -20,7 +21,8 @@ contract CarbonLink is ERC721, Ownable {
         bool retired;
         string description;
         bool exists;
-        bool sold;
+        uint256 riskRating;
+        uint256 lastEvaluatedRiskDate;
     }
 
     mapping(uint256 => Credit) private credits;
@@ -33,6 +35,7 @@ contract CarbonLink is ERC721, Ownable {
     constructor() ERC721("CarbonLink", "CLINK") {}
 
     function mintCarbonLink(
+        string calldata uuid,
         string calldata issuer,
         uint256 metricTonsCO2,
         uint256 issueDate,
@@ -43,24 +46,28 @@ contract CarbonLink is ERC721, Ownable {
         string calldata projectType,
         uint256 price,
         bool retired,
-        string calldata description
+        string calldata description,
+        uint256 riskRating,
+        uint256 lastEvaluatedRiskDate
     ) public onlyOwner {
         uint256 tokenId = issuedCredits + 1;
         _mint(msg.sender, tokenId);
         credits[tokenId] = Credit({
-           issuer: issuer,
-           metricTonsCO2: metricTonsCO2,
-           issueDate: issueDate,
-           expiryDate: expiryDate,
-           greenHouseGasType: greenHouseGasType,
-           standard: standard,
-           region: region,
-           projectType: projectType,
-           price: price,
-           retired: retired,
-           description: description,
-           exists: true,
-           sold: false
+            uuid: uuid,
+            issuer: issuer,
+            metricTonsCO2: metricTonsCO2,
+            issueDate: issueDate,
+            expiryDate: expiryDate,
+            greenHouseGasType: greenHouseGasType,
+            standard: standard,
+            region: region,
+            projectType: projectType,
+            price: price,
+            retired: retired,
+            description: description,
+            exists: true,
+            riskRating: riskRating,
+            lastEvaluatedRiskDate: lastEvaluatedRiskDate
         });
     }
 
@@ -70,21 +77,16 @@ contract CarbonLink is ERC721, Ownable {
         credits[tokenId].retired = true;
     }
 
-    function buyCarbonLink(uint256 tokenId) public payable tokenExists(tokenId) {
+    function buyCarbonLink(
+        uint256 tokenId
+    ) public payable tokenExists(tokenId) {
         require(msg.value >= credits[tokenId].price, "Insufficient funds");
-        require(credits[tokenId].sold == false, "Contract is not in possession of token");
-        credits[tokenId].sold = true;
         _transfer(address(this), msg.sender, 1);
     }
 
     function getCarbonLink(
         uint256 tokenId
-    )
-        public
-        view
-        tokenExists(tokenId)
-        returns (Credit memory)
-    {
+    ) public view tokenExists(tokenId) returns (Credit memory) {
         return credits[tokenId];
     }
 }
