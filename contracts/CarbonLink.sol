@@ -11,7 +11,7 @@ contract CarbonLink is ERC721, Ownable {
     struct Credit {
         string description;
         string uri;
-        bool valid;
+        bool retired;
     }
 
     mapping(uint256 => Credit) private carbonOffsets;
@@ -37,7 +37,7 @@ contract CarbonLink is ERC721, Ownable {
         carbonOffsets[tokenId] = Credit({
             description: description,
             uri: uri,
-            valid: true
+            retired: false
         });
         totalCarbonCredits++;
     }
@@ -49,7 +49,7 @@ contract CarbonLink is ERC721, Ownable {
     function retireCarbonLink(
         uint256 tokenId
     ) public onlyOwner tokenExists(tokenId) {
-        carbonOffsets[tokenId].valid = false;
+        carbonOffsets[tokenId].retired = true;
     }
 
     function buyCarbonLink() public payable hasSufficientFunds {
