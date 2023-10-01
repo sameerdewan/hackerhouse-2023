@@ -47,9 +47,8 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
         _;
     }
 
-    constructor(address oracle, uint64 _subscriptionId, uint32 _gasLimit) FunctionsClient(oracle)  ERC721("CarbonLink", "CLINK") {
-        subscriptionId = _subscriptionId;
-        gasLimit = _gasLimit;
+    constructor(address oracle) FunctionsClient(oracle) ERC721("CarbonLink", "CLINK") {
+
     }
 
     function mintCarbonLink(
@@ -121,7 +120,7 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
         gasLimit,
         jobId
     );
-        requestIdToTokenId[requestId] = tokenId;
+    requestIdToTokenId[requestId] = tokenId;
     return requestId;
   }
 
@@ -139,5 +138,9 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
 
   function setGasLimit(uint32 _gasLimit) public onlyOwner {
     gasLimit = _gasLimit;
+  }
+
+  function setJobId(bytes32 _jobId) public onlyOwner {
+    jobId = _jobId;
   }
 }
