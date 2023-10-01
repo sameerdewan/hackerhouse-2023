@@ -71,7 +71,7 @@ function adminPage () {
          {/* Button */}
          <div className="mt-6">
            <button
-           onClick={mintCarbonCredit}
+           onClick={ mintCarbonCredit}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium p-2 rounded-md">Mint Carbon Credit</button>
          </div>
        </div>
