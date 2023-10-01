@@ -32,6 +32,7 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
         bool exists;
         uint256 riskRating;
         uint256 lastEvaluatedRiskDate;
+        bytes32 latestRequestId;
     }
 
     mapping(uint256 => Credit) private credits;
@@ -64,7 +65,8 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
         bool retired,
         string calldata description,
         uint256 riskRating,
-        uint256 lastEvaluatedRiskDate
+        uint256 lastEvaluatedRiskDate,
+        bytes32 latestRequestId
     ) public onlyOwner {
         uint256 tokenId = issuedCredits + 1;
         _mint(msg.sender, tokenId);
@@ -83,7 +85,8 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
             description: description,
             exists: true,
             riskRating: riskRating,
-            lastEvaluatedRiskDate: lastEvaluatedRiskDate
+            lastEvaluatedRiskDate: lastEvaluatedRiskDate,
+            latestRequestId: latestRequestId
         });
     }
 
@@ -110,25 +113,16 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
     FunctionsRequest.Request memory req;
     req.initializeRequest(FunctionsRequest.Location.Inline, FunctionsRequest.CodeLanguage.JavaScript, source);
     if (secrets.length > 0) req.addSecretsReference(secrets);
-    // if (riskLedger[tokenId].exists == false) {
-    //     riskLedger[tokenId] = Risk({
-    //       rating: 0,
-    //       lastEvaluatedDate: 0,
-    //       latestRequestId: 0,
-    //       exists: true
-    //     });
-    // }
-    // riskLedger[tokenId].latestRequestId = _sendRequest(
-    //     req.encodeCBOR(), 
-    //     subscriptionId, 
-    //     gasLimit,
-    //     jobId
-    // );
-    // return riskLedger[tokenId].latestRequestId;
+    credits[tokenId].latestRequestId = _sendRequest(
+        req.encodeCBOR(), 
+        subscriptionId, 
+        gasLimit,
+        jobId
+    );
+    return credits[tokenId].latestRequestId;
   }
 
   function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
-
     emit OCRResponse(requestId, response, err);
   }  
 
