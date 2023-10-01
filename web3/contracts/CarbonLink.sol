@@ -15,6 +15,7 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
     uint32 gasLimit;
     bytes32 jobId;
     uint256 public issuedCredits = 0;
+    mapping(bytes32 => uint256) public requestIdToTokenId;
 
     struct Credit {
         string uuid;
