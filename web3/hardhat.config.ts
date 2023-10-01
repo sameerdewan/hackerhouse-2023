@@ -7,16 +7,12 @@ const config: HardhatUserConfig = {
   solidity: '0.8.19',
 
   networks: {
-    mumbai: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/tCbwTAqlofFnmbVORepuHNcsrjNXWdRJ',
-      accounts: [process.env.PRIVATE_KEY || ''],
-    },
     sepolia: {
       url: '', // TODO: add sepolia node url
       accounts: [process.env.PRIVATE_KEY || ''],
     },
   },
-  defaultNetwork: 'mumbai',
+  defaultNetwork: 'sepolia',
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
