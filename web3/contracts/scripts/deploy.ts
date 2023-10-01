@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+import fs from "fs";
 
 const sepoliaFunctionsRouter = "0xb83E47C2bC239B3bf370bc41e1459A34b41238D0";
 const sepoliaCCIPRouter = "0xD0daae2231E9CB96b94C8512223533293C3693Bf";
@@ -14,6 +15,12 @@ async function main() {
 
   await receiver.waitForDeployment();
   await sender.waitForDeployment();
+
+  fs.writeFileSync('deployment.json', JSON.stringify({
+    carbonLink,
+    receiver,
+    sender
+  }, null, 2));
 }
 
 // We recommend this pattern to be able to use async/await everywhere
