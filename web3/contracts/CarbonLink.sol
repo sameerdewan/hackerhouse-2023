@@ -3,10 +3,10 @@ pragma solidity ^0.8.9;
 
 // Need to figure out how to trigger and bring on chain data from external source for riskRating (mock api)
 
-import "../node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
-import {FunctionsClient} from "../node_modules/@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/FunctionsClient.sol";
-import {FunctionsRequest} from "../node_modules/@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/libraries/FunctionsRequest.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/FunctionsClient.sol";
+import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/libraries/FunctionsRequest.sol";
 
 contract CarbonLink is ERC721, Ownable, FunctionsClient {
     using FunctionsRequest for FunctionsRequest.Request;
@@ -19,17 +19,9 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
 
     struct Credit {
         string uuid;
-        string issuer;
         uint256 metricTonsCO2;
-        uint256 issueDate;
-        uint256 expiryDate;
-        string greenHouseGasType;
-        string standard;
-        string region;
-        string projectType;
         uint256 price;
         bool retired;
-        string description;
         bool exists;
         uint256 riskRating;
         uint256 lastEvaluatedRiskDate;
@@ -53,17 +45,9 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
 
     function mintCarbonLink(
         string calldata uuid,
-        string calldata issuer,
         uint256 metricTonsCO2,
-        uint256 issueDate,
-        uint256 expiryDate,
-        string calldata greenHouseGasType,
-        string calldata standard,
-        string calldata region,
-        string calldata projectType,
         uint256 price,
         bool retired,
-        string calldata description,
         uint256 riskRating,
         uint256 lastEvaluatedRiskDate,
         bytes32 latestRequestId
@@ -72,17 +56,9 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
         _mint(msg.sender, tokenId);
         credits[tokenId] = Credit({
             uuid: uuid,
-            issuer: issuer,
             metricTonsCO2: metricTonsCO2,
-            issueDate: issueDate,
-            expiryDate: expiryDate,
-            greenHouseGasType: greenHouseGasType,
-            standard: standard,
-            region: region,
-            projectType: projectType,
             price: price,
             retired: retired,
-            description: description,
             exists: true,
             riskRating: riskRating,
             lastEvaluatedRiskDate: lastEvaluatedRiskDate,
