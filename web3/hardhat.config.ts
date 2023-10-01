@@ -12,7 +12,7 @@ const config: HardhatUserConfig = {
       accounts: [process.env.PRIVATE_KEY || ''],
     },
     sepolia: {
-      url: 'https://ethereum-sepolia.g.alchemy.com/v2/your-sepolia-url',
+      url: '', // TODO: add sepolia node url
       accounts: [process.env.PRIVATE_KEY || ''],
     },
   },
