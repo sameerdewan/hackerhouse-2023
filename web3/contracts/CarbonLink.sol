@@ -109,20 +109,26 @@ contract CarbonLink is ERC721, Ownable, FunctionsClient {
         return credits[tokenId];
     }
 
-    function requestRiskData(string calldata source, bytes calldata secrets, uint256 tokenId) public returns (bytes32) {
+  function requestRiskData(string calldata source, bytes calldata secrets, uint256 tokenId) public returns (bytes32) {
     FunctionsRequest.Request memory req;
     req.initializeRequest(FunctionsRequest.Location.Inline, FunctionsRequest.CodeLanguage.JavaScript, source);
     if (secrets.length > 0) req.addSecretsReference(secrets);
-    credits[tokenId].latestRequestId = _sendRequest(
+    
+    bytes32 requestId = _sendRequest(
         req.encodeCBOR(), 
         subscriptionId, 
         gasLimit,
         jobId
     );
-    return credits[tokenId].latestRequestId;
+        requestIdToTokenId[requestId] = tokenId;
+    return requestId;
   }
 
   function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
+    uint256 riskRating = abi.decode(response, (uint256));
+    uint256 tokenId = requestIdToTokenId[requestId];
+    credits[tokenId].riskRating = riskRating;
+    credits[tokenId].lastEvaluatedRiskDate = block.timestamp;
     emit OCRResponse(requestId, response, err);
   }  
 
