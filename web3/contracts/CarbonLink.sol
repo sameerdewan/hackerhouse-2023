@@ -3,10 +3,10 @@ pragma solidity ^0.8.9;
 
 // Need to figure out how to trigger and bring on chain data from external source for riskRating (mock api)
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/FunctionsClient.sol";
-import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/libraries/FunctionsRequest.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import {FunctionsClient} from "../node_modules/@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/FunctionsClient.sol";
+import {FunctionsRequest} from "../node_modules/@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/libraries/FunctionsRequest.sol";
 
 contract CarbonLink is ERC721, Ownable, FunctionsClient {
     using FunctionsRequest for FunctionsRequest.Request;
