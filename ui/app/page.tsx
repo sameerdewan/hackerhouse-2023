@@ -7,6 +7,7 @@ export default function Home() {
      <div className="flex justify-center w-full">
       <Navbar />
      </div>
+ 
     </main>
   )
 }
